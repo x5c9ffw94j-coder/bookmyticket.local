@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BookMyTicket</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="brand">BOOK <span>MY TICKET</span></div>
+
+        <label class="search-wrap" for="movieSearch">
+          <input id="movieSearch" type="search" placeholder="Search movies..." />
+        </label>
+
+        <div class="topbar-actions">
+          <div class="location">Vaghodia</div>
+          <button id="authButton" class="ghost-btn">Sign In</button>
+        </div>
+      </header>
+
+      <main>
+        <section id="heroSection" class="hero"></section>
+        <section id="freshBookingBar" class="fresh-booking"></section>
+        <section id="bookingFlow" class="booking-flow hidden">
+          <div class="booking-flow-head">
+            <div>
+              <div id="bookingFlowTitle" class="booking-flow-title">Book Tickets</div>
+              <div id="bookingFlowMeta" class="booking-flow-meta">Step 1: Choose date & time</div>
+            </div>
+            <button id="bookingFlowClose" class="ghost-btn">Close</button>
+          </div>
+          <div id="bookingFlowBody" class="booking-flow-body"></div>
+        </section>
+
+        <section class="dashboard-grid">
+          <div class="catalog-column">
+            <section class="content-block">
+              <h2>Now Showing</h2>
+              <div id="nowShowingGrid" class="movie-grid"></div>
+            </section>
+
+            <section class="content-block">
+              <div class="block-header">
+                <h2>Upcoming Movies</h2>
+                <div class="tabs">
+                  <button id="teluguTab" class="tab active" data-tab="telugu">Telugu</button>
+                  <button id="hindiTab" class="tab" data-tab="hindi">Hindi</button>
+                </div>
+              </div>
+              <div id="upcomingGrid" class="movie-grid upcoming"></div>
+            </section>
+          </div>
+
+          <aside class="panel-column">
+            <section class="panel" id="moviePanel">
+              <h3>Movie Details</h3>
+              <div id="moviePanelBody" class="muted">Select a movie to view showtimes.</div>
+            </section>
+
+            <section class="panel" id="showPanel">
+              <h3>Showtimes</h3>
+              <div id="showList" class="show-list muted">Choose a movie to see available shows.</div>
+            </section>
+
+            <section class="panel" id="seatPanel">
+              <h3>Seat Selection</h3>
+              <div id="seatPanelBody" class="muted">Pick a showtime to view seat layout.</div>
+            </section>
+
+            <section class="panel" id="notificationPanel">
+              <h3>Notifications</h3>
+              <div id="notificationList" class="notification-list muted">Sign in to get booking reminders and receipts.</div>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

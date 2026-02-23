@@ -1,0 +1,692 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;700;800&display=swap');
+
+:root {
+  --bg: #05060b;
+  --surface: rgba(16, 19, 30, 0.88);
+  --surface-soft: rgba(12, 14, 22, 0.78);
+  --stroke: rgba(255, 255, 255, 0.08);
+  --text: #f5f7fd;
+  --muted: #a3adbe;
+  --accent: #ef4035;
+  --accent-soft: rgba(239, 64, 53, 0.2);
+  --warn: #f5c451;
+  --ok: #3ac16a;
+  --danger: #e84756;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: 'Manrope', sans-serif;
+  background:
+    radial-gradient(circle at 15% 10%, rgba(239, 64, 53, 0.22), transparent 35%),
+    radial-gradient(circle at 80% 90%, rgba(47, 128, 237, 0.12), transparent 45%),
+    var(--bg);
+}
+
+.app-shell {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 18px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 18px;
+  align-items: center;
+  background: rgba(11, 14, 22, 0.94);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+
+.brand {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 2px;
+  font-size: 2rem;
+  color: #fff;
+}
+
+.brand span {
+  color: var(--accent);
+}
+
+.search-wrap {
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.06));
+}
+
+.search-wrap input {
+  width: 100%;
+  padding: 13px 16px;
+  border: none;
+  border-radius: 14px;
+  outline: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.location {
+  color: #ffd1ca;
+  border: 1px solid var(--stroke);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(239, 64, 53, 0.12);
+  font-size: 0.9rem;
+}
+
+.ghost-btn,
+.primary-btn,
+.pay-btn,
+.small-btn {
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ghost-btn {
+  border-color: rgba(239, 64, 53, 0.65);
+  color: #fff;
+  background: transparent;
+}
+
+.primary-btn,
+.pay-btn {
+  color: #fff;
+}
+
+.primary-btn {
+  background: var(--ok);
+  border-color: rgba(58, 193, 106, 0.72);
+  color: #061a0d;
+}
+
+.pay-btn {
+  background: var(--accent);
+}
+
+.primary-btn:hover,
+.pay-btn:hover,
+.ghost-btn:hover,
+.small-btn:hover {
+  filter: brightness(1.06);
+}
+
+.hero {
+  margin-top: 18px;
+  min-height: 320px;
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(95deg, rgba(5, 6, 11, 0.88) 0%, rgba(5, 6, 11, 0.68) 50%, rgba(5, 6, 11, 0.3) 100%);
+}
+
+.hero-content {
+  position: relative;
+  max-width: 64%;
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.chip {
+  border: 1px solid rgba(239, 64, 53, 0.6);
+  color: #ffd9d4;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+.hero h1 {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.6rem, 5vw, 5.6rem);
+  letter-spacing: 1.5px;
+  line-height: 0.94;
+}
+
+.hero p {
+  margin-top: 12px;
+  color: var(--muted);
+  max-width: 80ch;
+}
+
+.hero-actions {
+  margin-top: 18px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hero .rating {
+  color: var(--warn);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.dashboard-grid {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 18px;
+}
+
+/* Hide legacy right-side panels (old showtimes/seat/payment path). */
+.dashboard-grid {
+  grid-template-columns: 1fr;
+}
+
+.panel-column {
+  display: none;
+}
+
+.fresh-booking {
+  margin-top: 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  background: linear-gradient(120deg, rgba(239, 64, 53, 0.16), rgba(255, 255, 255, 0.03));
+  padding: 14px 16px;
+}
+
+.fresh-booking-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.fresh-booking-title {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+  font-size: 1.6rem;
+}
+
+.fresh-booking-meta {
+  color: #ecf1ff;
+  font-size: 0.92rem;
+}
+
+.fresh-booking-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fresh-booking .receipt {
+  margin-top: 10px;
+}
+
+.booking-flow {
+  margin-top: 16px;
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(11, 14, 22, 0.98), rgba(14, 17, 28, 0.95));
+  padding: 16px;
+}
+
+.booking-flow-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.booking-flow-title {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+  font-size: 2rem;
+}
+
+.booking-flow-meta {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.booking-flow-body {
+  display: grid;
+  gap: 12px;
+}
+
+.flow-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.flow-date-card {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.flow-date-title {
+  font-weight: 800;
+  margin-bottom: 9px;
+}
+
+.flow-time-list {
+  display: grid;
+  gap: 8px;
+}
+
+.flow-time-item {
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.flow-time-info {
+  display: grid;
+  gap: 2px;
+}
+
+.flow-seat-grid {
+  display: grid;
+  gap: 6px;
+  max-width: 960px;
+}
+
+.flow-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--stroke);
+  padding-top: 10px;
+}
+
+.pay-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pay-option {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.flow-summary {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  display: grid;
+  gap: 4px;
+}
+
+.content-block,
+.panel {
+  background: var(--surface-soft);
+  border: 1px solid var(--stroke);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.content-block h2,
+.panel h3 {
+  margin: 0 0 12px;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
+  font-weight: 400;
+}
+
+.block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.tab,
+.small-btn {
+  border: 1px solid var(--stroke);
+  color: #f3f5fc;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tab {
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.tab.active {
+  border-color: rgba(239, 64, 53, 0.7);
+  color: #ffd3ce;
+  background: rgba(239, 64, 53, 0.14);
+}
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.movie-card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--stroke);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.movie-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(239, 64, 53, 0.45);
+}
+
+.movie-card.active {
+  border-color: rgba(239, 64, 53, 0.85);
+  box-shadow: 0 0 0 1px rgba(239, 64, 53, 0.32);
+}
+
+.movie-thumb {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+}
+
+.movie-meta {
+  padding: 10px;
+}
+
+.movie-title {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.movie-sub {
+  font-size: 0.83rem;
+  color: var(--muted);
+}
+
+.panel-column {
+  display: grid;
+  gap: 12px;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.show-list {
+  display: grid;
+  gap: 10px;
+}
+
+.show-item {
+  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.show-item-head {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.show-time-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.show-time {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.seat-wrap {
+  display: grid;
+  gap: 10px;
+}
+
+.screen-bar {
+  text-align: center;
+  border: 1px solid rgba(58, 193, 106, 0.45);
+  color: #b2f3c5;
+  border-radius: 999px;
+  padding: 4px 0;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.seat-grid {
+  display: grid;
+  gap: 6px;
+}
+
+.seat {
+  height: 30px;
+  border: 1px solid #2f3440;
+  border-radius: 7px;
+  background: #050505;
+  color: #d0d5df;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.seat.mine {
+  background: rgba(58, 193, 106, 0.28);
+  border-color: rgba(58, 193, 106, 0.75);
+  color: #d9ffe5;
+}
+
+.seat.booked {
+  background: rgba(232, 71, 86, 0.24);
+  border-color: rgba(232, 71, 86, 0.7);
+  color: #ffced5;
+  cursor: not-allowed;
+}
+
+.seat.locked {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #101214;
+  cursor: not-allowed;
+}
+
+.seat-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+}
+
+.legend-dot.available {
+  background: #000000;
+  border: 1px solid #4a4a4a;
+}
+
+.legend-dot.mine {
+  background: var(--ok);
+}
+
+.legend-dot.locked {
+  background: #ffffff;
+  border: 1px solid #d8d8d8;
+}
+
+.legend-dot.booked {
+  background: var(--danger);
+}
+
+.booking-footer {
+  display: grid;
+  gap: 10px;
+}
+
+.notification-list {
+  display: grid;
+  gap: 9px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.notification-item {
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.notification-item .meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #c5cfde;
+  margin-bottom: 4px;
+}
+
+.notification-item h4 {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+}
+
+.notification-item p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.receipt {
+  border: 1px solid rgba(239, 64, 53, 0.36);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(239, 64, 53, 0.07);
+  display: grid;
+  gap: 4px;
+  font-size: 0.92rem;
+}
+
+.receipt .code {
+  color: #ffd5ce;
+  font-weight: 800;
+}
+
+.booking-qr {
+  width: 140px;
+  height: 140px;
+  border-radius: 8px;
+  border: 1px solid var(--stroke);
+  background: #fff;
+  margin-top: 8px;
+}
+
+@media (max-width: 1140px) {
+  .movie-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 780px) {
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .fresh-booking-inner {
+    align-items: flex-start;
+  }
+
+  .pay-options {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .movie-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .panel-column {
+    grid-template-columns: 1fr;
+  }
+}
