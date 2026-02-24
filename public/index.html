@@ -7,6 +7,23 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <section id="introOverlay" class="intro-overlay hidden" aria-hidden="true">
+      <div id="introBackdrop" class="intro-backdrop"></div>
+      <div class="intro-vignette"></div>
+      <div class="intro-rail intro-rail-top">
+        <div id="introRailTop" class="intro-track"></div>
+      </div>
+      <div class="intro-rail intro-rail-bottom">
+        <div id="introRailBottom" class="intro-track"></div>
+      </div>
+      <div class="intro-center">
+        <div class="intro-badge">BMT</div>
+        <h1 class="intro-title">BOOK <span>MY TICKET</span></h1>
+        <p class="intro-sub">Book tickets. Pick your show. Watch the magic.</p>
+        <button id="introEnterBtn" class="intro-enter-btn">Enter</button>
+      </div>
+    </section>
+
     <div class="app-shell">
       <header class="topbar">
         <div class="brand">BOOK <span>MY TICKET</span></div>
@@ -20,10 +37,10 @@
           <button id="authButton" class="ghost-btn">Sign In</button>
         </div>
       </header>
+      <section id="loginDashboard" class="login-dashboard hidden"></section>
 
       <main>
         <section id="heroSection" class="hero"></section>
-        <section id="freshBookingBar" class="fresh-booking"></section>
         <section id="bookingFlow" class="booking-flow hidden">
           <div class="booking-flow-head">
             <div>
@@ -45,12 +62,24 @@
             <section class="content-block">
               <div class="block-header">
                 <h2>Upcoming Movies</h2>
-                <div class="tabs">
-                  <button id="teluguTab" class="tab active" data-tab="telugu">Telugu</button>
-                  <button id="hindiTab" class="tab" data-tab="hindi">Hindi</button>
+                <div class="tabs" id="upcomingTabs">
+                  <button class="tab active" data-tab="telugu">Telugu</button>
+                  <button class="tab" data-tab="hindi">Hindi</button>
+                  <button class="tab" data-tab="tamil">Tamil</button>
+                  <button class="tab" data-tab="malayalam">Malayalam</button>
                 </div>
               </div>
               <div id="upcomingGrid" class="movie-grid upcoming"></div>
+            </section>
+
+            <section class="content-block">
+              <h2>Recent Upcoming</h2>
+              <div id="recentUpcomingGrid" class="movie-grid"></div>
+            </section>
+
+            <section class="content-block" id="notificationPanel">
+              <h2>Live Notifications</h2>
+              <div id="notificationList" class="notification-list muted">Sign in to get booking reminders and receipts.</div>
             </section>
           </div>
 
@@ -69,15 +98,11 @@
               <h3>Seat Selection</h3>
               <div id="seatPanelBody" class="muted">Pick a showtime to view seat layout.</div>
             </section>
-
-            <section class="panel" id="notificationPanel">
-              <h3>Notifications</h3>
-              <div id="notificationList" class="notification-list muted">Sign in to get booking reminders and receipts.</div>
-            </section>
           </aside>
         </section>
       </main>
     </div>
+    <div id="authModal" class="auth-modal hidden"></div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="app.js"></script>

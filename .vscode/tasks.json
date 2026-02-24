@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "BookMyTicket: Install Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BookMyTicket: Stop Existing Server",
+      "type": "shell",
+      "command": "pkill -f \"node server/index.js\" || true",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "BookMyTicket: Start Server",
+      "type": "shell",
+      "command": "npm start",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "^(.*)$",
+          "message": 1
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*node server/index.js.*",
+          "endsPattern": ".*BookMyTicket listening on http://localhost:3000.*"
+        }
+      }
+    },
+    {
+      "label": "BookMyTicket: Run App",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "BookMyTicket: Stop Existing Server",
+        "BookMyTicket: Start Server"
+      ]
+    }
+  ]
+}
