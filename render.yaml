@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: bookmyticket
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: OTP_DEBUG_PREVIEW
+        value: "false"
+      - key: DB_PATH
+        value: /var/data/bookmyticket.db
+    disks:
+      - name: bookmyticket-data
+        mountPath: /var/data
+        sizeGB: 1

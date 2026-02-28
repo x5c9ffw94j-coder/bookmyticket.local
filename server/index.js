@@ -42,7 +42,7 @@ const SMTP_PASS = process.env.SMTP_PASS || '';
 const SMTP_FROM_EMAIL = (process.env.SMTP_FROM_EMAIL || '').trim();
 const SMTP_FROM_NAME = (process.env.SMTP_FROM_NAME || 'BookMyTicket').trim();
 const EMAIL_DELIVERY_REQUIRED = String(process.env.EMAIL_DELIVERY_REQUIRED || '').toLowerCase() === 'true';
-const DB_PATH = path.join(__dirname, '..', 'bookmyticket.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'bookmyticket.db');
 
 const app = express();
 const server = http.createServer(app);
