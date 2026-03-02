@@ -8,6 +8,9 @@
     "dev": "node server/index.js",
     "sever": "node server/index.js",
     "server": "node server/index.js",
+    "wifi": "bash scripts/start-wifi.sh",
+    "public": "bash scripts/start-public-url.sh",
+    "live": "bash scripts/start-live.sh",
     "test": "echo \"No tests configured\""
   },
   "keywords": [],

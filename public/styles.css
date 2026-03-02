@@ -12,6 +12,9 @@
   --warn: #f5c451;
   --ok: #3ac16a;
   --danger: #e84756;
+  --glow-cyan: rgba(60, 182, 255, 0.26);
+  --glow-gold: rgba(245, 196, 81, 0.18);
+  --glass-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
 }
 
 * {
@@ -23,14 +26,76 @@ body {
   min-height: 100vh;
   color: var(--text);
   font-family: 'Manrope', sans-serif;
+  position: relative;
+  isolation: isolate;
   background:
     radial-gradient(circle at 15% 10%, rgba(239, 64, 53, 0.22), transparent 35%),
-    radial-gradient(circle at 80% 90%, rgba(47, 128, 237, 0.12), transparent 45%),
+    radial-gradient(circle at 82% 84%, var(--glow-cyan), transparent 44%),
+    radial-gradient(circle at 52% 120%, var(--glow-gold), transparent 55%),
     var(--bg);
 }
 
 body.intro-lock {
   overflow: hidden;
+}
+
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  inset: -15%;
+  pointer-events: none;
+  z-index: -2;
+}
+
+body::before {
+  background:
+    conic-gradient(
+      from 160deg,
+      rgba(239, 64, 53, 0.06),
+      rgba(60, 182, 255, 0.08),
+      rgba(245, 196, 81, 0.06),
+      rgba(239, 64, 53, 0.06)
+    );
+  filter: blur(34px);
+  animation: ambientDrift 20s linear infinite;
+}
+
+body::after {
+  z-index: -1;
+  inset: 0;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 42px 42px;
+  mask-image: radial-gradient(circle at center, #000 35%, transparent 85%);
+  animation: gridPulse 8s ease-in-out infinite;
+}
+
+@keyframes ambientDrift {
+  0% {
+    transform: translate3d(-2%, -2%, 0) rotate(0deg);
+  }
+
+  50% {
+    transform: translate3d(3%, 2%, 0) rotate(180deg);
+  }
+
+  100% {
+    transform: translate3d(-2%, -2%, 0) rotate(360deg);
+  }
+}
+
+@keyframes gridPulse {
+  0%,
+  100% {
+    opacity: 0.16;
+  }
+
+  50% {
+    opacity: 0.28;
+  }
 }
 
 .intro-overlay {
@@ -250,6 +315,8 @@ body.intro-lock {
   max-width: 1400px;
   margin: 0 auto;
   padding: 18px;
+  position: relative;
+  z-index: 1;
 }
 
 .hidden {
@@ -261,10 +328,12 @@ body.intro-lock {
   grid-template-columns: auto 1fr auto;
   gap: 18px;
   align-items: center;
-  background: rgba(11, 14, 22, 0.94);
+  background: linear-gradient(130deg, rgba(11, 14, 22, 0.88), rgba(16, 22, 34, 0.82));
   border: 1px solid var(--stroke);
   border-radius: 16px;
   padding: 14px 18px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(10px);
 }
 
 .auth-banner {
@@ -678,7 +747,7 @@ body.intro-lock {
 .hero {
   margin-top: 18px;
   min-height: 320px;
-  border: 1px solid var(--stroke);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 20px;
   padding: 26px;
   display: flex;
@@ -686,13 +755,16 @@ body.intro-lock {
   justify-content: flex-end;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--glass-shadow);
 }
 
 .hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(95deg, rgba(5, 6, 11, 0.88) 0%, rgba(5, 6, 11, 0.68) 50%, rgba(5, 6, 11, 0.3) 100%);
+  background:
+    linear-gradient(95deg, rgba(5, 6, 11, 0.88) 0%, rgba(5, 6, 11, 0.64) 50%, rgba(5, 6, 11, 0.22) 100%),
+    radial-gradient(circle at 80% 20%, rgba(239, 64, 53, 0.22), transparent 45%);
 }
 
 .hero-content {
@@ -825,10 +897,12 @@ body.intro-lock {
 
 .booking-flow {
   margin-top: 16px;
-  border: 1px solid var(--stroke);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 16px;
-  background: linear-gradient(160deg, rgba(11, 14, 22, 0.98), rgba(14, 17, 28, 0.95));
+  background: linear-gradient(160deg, rgba(11, 14, 22, 0.9), rgba(14, 17, 28, 0.86));
   padding: 16px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(10px);
 }
 
 .booking-flow-head {
@@ -961,10 +1035,12 @@ body.intro-lock {
 
 .content-block,
 .panel {
-  background: var(--surface-soft);
-  border: 1px solid var(--stroke);
+  background: linear-gradient(145deg, rgba(16, 20, 31, 0.86), rgba(11, 15, 25, 0.76));
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
   padding: 16px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(10px);
 }
 
 .content-block h2,
@@ -1017,17 +1093,33 @@ body.intro-lock {
   --stagger: 0;
   border-radius: 14px;
   overflow: hidden;
+  position: relative;
   background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--stroke);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.24s ease, border-color 0.24s ease, box-shadow 0.24s ease;
   animation: movieCardEnter 420ms ease both;
   animation-delay: calc(var(--stagger) * 55ms);
 }
 
+.movie-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(125deg, transparent 20%, rgba(255, 255, 255, 0.22) 38%, transparent 54%);
+  transform: translateX(-120%);
+  transition: transform 0.6s ease;
+  pointer-events: none;
+}
+
 .movie-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(239, 64, 53, 0.45);
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(239, 64, 53, 0.58);
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.32);
+}
+
+.movie-card:hover::after {
+  transform: translateX(120%);
 }
 
 .movie-card.active {
@@ -1212,10 +1304,10 @@ body.intro-lock {
 }
 
 .notification-item {
-  border: 1px solid var(--stroke);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 10px;
   padding: 9px;
-  background: rgba(255, 255, 255, 0.02);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
 }
 
 .notification-item .meta {
@@ -1238,27 +1330,58 @@ body.intro-lock {
 }
 
 .receipt {
-  border: 1px solid rgba(239, 64, 53, 0.36);
-  border-radius: 12px;
-  padding: 12px;
-  background: rgba(239, 64, 53, 0.07);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(239, 64, 53, 0.44);
+  border-radius: 16px;
+  padding: 14px 16px;
+  background:
+    radial-gradient(circle at 95% 0%, rgba(245, 196, 81, 0.2), transparent 35%),
+    linear-gradient(135deg, rgba(239, 64, 53, 0.18), rgba(14, 18, 30, 0.78) 58%);
   display: grid;
-  gap: 4px;
+  gap: 6px;
   font-size: 0.92rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 14px 24px rgba(0, 0, 0, 0.28);
+}
+
+.receipt::before,
+.receipt::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transform: translateY(-50%);
+}
+
+.receipt::before {
+  left: -10px;
+}
+
+.receipt::after {
+  right: -10px;
 }
 
 .receipt .code {
-  color: #ffd5ce;
+  color: #ffe2dd;
   font-weight: 800;
+  letter-spacing: 0.4px;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.26);
 }
 
 .booking-qr {
   width: 140px;
   height: 140px;
-  border-radius: 8px;
-  border: 1px solid var(--stroke);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
   background: #fff;
   margin-top: 8px;
+  padding: 6px;
 }
 
 @media (max-width: 1140px) {

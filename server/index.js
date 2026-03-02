@@ -1362,6 +1362,14 @@ function getLanIpv4Addresses() {
   return Array.from(new Set(addresses));
 }
 
+function getBonjourHostname() {
+  const rawHost = String(os.hostname() || '').trim();
+  if (!rawHost) {
+    return null;
+  }
+  return rawHost.endsWith('.local') ? rawHost : `${rawHost}.local`;
+}
+
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true, service: 'bookmyticket' });
 });
@@ -2008,10 +2016,15 @@ async function bootstrap() {
   await initializeData();
   server.listen(PORT, HOST, () => {
     const lanUrls = getLanIpv4Addresses().map((ip) => `http://${ip}:${PORT}`);
+    const bonjourHost = getBonjourHostname();
     // eslint-disable-next-line no-console
     console.log(`BookMyTicket listening on http://localhost:${PORT}`);
     // eslint-disable-next-line no-console
     console.log(`Email receipts: ${SMTP_ENABLED ? 'enabled' : 'disabled (configure SMTP_* in .env)'}`);
+    if (bonjourHost) {
+      // eslint-disable-next-line no-console
+      console.log(`Wi-Fi hostname (Bonjour): http://${bonjourHost}:${PORT}`);
+    }
     if (lanUrls.length > 0) {
       // eslint-disable-next-line no-console
       console.log(`Mobile access (same Wi-Fi): ${lanUrls.join(' | ')}`);
