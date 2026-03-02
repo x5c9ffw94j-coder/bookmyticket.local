@@ -11,6 +11,8 @@
     "wifi": "bash scripts/start-wifi.sh",
     "public": "bash scripts/start-public-url.sh",
     "live": "bash scripts/start-live.sh",
+    "docker:local": "bash scripts/start-docker-local.sh",
+    "deploy:railway": "bash scripts/deploy-railway.sh",
     "test": "echo \"No tests configured\""
   },
   "keywords": [],

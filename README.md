@@ -1,6 +1,6 @@
 # BookMyTicket
 
-## Run Locally (Laptop)
+## Local Run
 
 ```bash
 cd /Users/premkumar/Desktop/tickets
@@ -10,7 +10,7 @@ npm run server
 
 Open: `http://localhost:3000`
 
-## Run on Wi-Fi (Other Laptop + Mobile)
+## Wi-Fi Run (Laptop + Mobile on Same Network)
 
 ```bash
 cd /Users/premkumar/Desktop/tickets
@@ -39,7 +39,27 @@ sudo sh -c 'echo "YOUR_LAN_IP bookmyticket.local" >> /etc/hosts'
 
 If Wi-Fi IP changes, update the hosts entry with the new IP.
 
-## Public URL (Works Outside Wi-Fi)
+## Advanced Tool: Docker + Railway (Permanent URL)
+
+This is the recommended setup for stable access from both mobile and laptop.
+
+### 1) Local production test with Docker
+
+```bash
+cd /Users/premkumar/Desktop/tickets
+npm run docker:local
+```
+
+### 2) Deploy to Railway (permanent hosted app URL)
+
+```bash
+cd /Users/premkumar/Desktop/tickets
+npm run deploy:railway
+```
+
+After deploy, Railway gives a stable public URL (works on any network/device).
+
+## Temporary Public URL (Fallback)
 
 Terminal 1:
 
