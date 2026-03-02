@@ -13,6 +13,7 @@
     "live": "bash scripts/start-live.sh",
     "docker:local": "bash scripts/start-docker-local.sh",
     "deploy:railway": "bash scripts/deploy-railway.sh",
+    "domain:start": "bash scripts/start-domain.sh",
     "test": "echo \"No tests configured\""
   },
   "keywords": [],

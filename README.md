@@ -10,6 +10,15 @@ npm run server
 
 Open: `http://localhost:3000`
 
+## Domain Run (`bookmyticket.local`)
+
+```bash
+cd /Users/premkumar/Desktop/tickets
+npm run domain:start
+```
+
+Open: `http://bookmyticket.local`
+
 ## Wi-Fi Run (Laptop + Mobile on Same Network)
 
 ```bash
