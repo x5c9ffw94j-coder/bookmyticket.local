@@ -39,41 +39,42 @@ sudo sh -c 'echo "YOUR_LAN_IP bookmyticket.local" >> /etc/hosts'
 
 If Wi-Fi IP changes, update the hosts entry with the new IP.
 
-## Advanced Tool: Docker + Railway (Permanent URL)
+## Free Source 1: Render (Permanent Public URL)
 
-This is the recommended setup for stable access from both mobile and laptop.
+Use this for a stable free URL that works on laptop + mobile.
 
-### 1) Local production test with Docker
+1. Push latest code to GitHub.
+2. In Render, create Blueprint from this repo.
+3. Blueprint path: `render.yaml`
+4. Deploy branch: `main`
+
+Render gives URL like: `https://<your-app>.onrender.com`
+
+## Free Source 2: Public Tunnel (No account)
+
+One command:
 
 ```bash
 cd /Users/premkumar/Desktop/tickets
-npm run docker:local
-```
-
-### 2) Deploy to Railway (permanent hosted app URL)
-
-```bash
-cd /Users/premkumar/Desktop/tickets
-npm run deploy:railway
-```
-
-After deploy, Railway gives a stable public URL (works on any network/device).
-
-## Temporary Public URL (Fallback)
-
-Terminal 1:
-
-```bash
-npm run wifi
-```
-
-Terminal 2:
-
-```bash
 npm run public
 ```
 
-`npm run public` creates a temporary Cloudflare URL you can share to any device/network.
+This now:
+- auto-starts server if needed
+- tries Cloudflare first (`--retries=2`)
+- auto-falls back to Serveo/LocalTunnel if Cloudflare is blocked
+
+Keep terminal open while sharing the generated link.
+
+If one provider is blocked on your network, force another:
+
+```bash
+TUNNEL_PROVIDER=localtunnel npm run public
+```
+
+```bash
+TUNNEL_PROVIDER=serveo npm run public
+```
 
 ## Google Login Setup
 
