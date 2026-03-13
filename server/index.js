@@ -24,14 +24,16 @@ const SHOW_WINDOW_DAYS = Number(process.env.SHOW_WINDOW_DAYS || 5);
 const OTP_TTL_MS = Number(process.env.OTP_TTL_MS || 3 * 60 * 1000);
 const OTP_RESEND_MS = Number(process.env.OTP_RESEND_MS || 30 * 1000);
 const OTP_DEFAULT_COUNTRY_CODE = String(process.env.OTP_DEFAULT_COUNTRY_CODE || '91').replace(/\D/g, '') || '91';
-const OTP_DEBUG_PREVIEW =
-  String(process.env.OTP_DEBUG_PREVIEW || '').toLowerCase() === 'true' ||
-  process.env.NODE_ENV !== 'production';
 const OTP_REQUIRE_SMS = String(process.env.OTP_REQUIRE_SMS || '').toLowerCase() === 'true';
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID || '';
 const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN || '';
 const TWILIO_FROM_NUMBER = process.env.TWILIO_FROM_NUMBER || '';
 const OTP_SMS_ENABLED = Boolean(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_FROM_NUMBER);
+const OTP_DEBUG_PREVIEW =
+  String(process.env.OTP_DEBUG_PREVIEW || '').toLowerCase() === 'true' ||
+  process.env.NODE_ENV !== 'production';
+// If SMS isn't configured, allow demo OTP preview so login can still work.
+const OTP_PREVIEW_ALLOWED = OTP_DEBUG_PREVIEW || !OTP_SMS_ENABLED;
 const RAZORPAY_KEY_ID = process.env.RAZORPAY_KEY_ID || '';
 const RAZORPAY_KEY_SECRET = process.env.RAZORPAY_KEY_SECRET || '';
 const SMTP_HOST = (process.env.SMTP_HOST || '').trim();
@@ -402,7 +404,7 @@ async function sendOtpRealtime(phone, otpCode) {
       provider: 'local',
       sent: true,
       maskedPhone: maskPhone(phone),
-      otpPreview: OTP_DEBUG_PREVIEW ? otpCode : null,
+      otpPreview: OTP_PREVIEW_ALLOWED ? otpCode : null,
     };
   }
 
@@ -414,7 +416,7 @@ async function sendOtpRealtime(phone, otpCode) {
       sent: true,
       maskedPhone: maskPhone(phone),
       sid: sms.sid,
-      otpPreview: OTP_DEBUG_PREVIEW ? otpCode : null,
+      otpPreview: OTP_PREVIEW_ALLOWED ? otpCode : null,
     };
   } catch (error) {
     if (OTP_REQUIRE_SMS) {
@@ -425,7 +427,7 @@ async function sendOtpRealtime(phone, otpCode) {
       provider: 'fallback',
       sent: true,
       maskedPhone: maskPhone(phone),
-      otpPreview: OTP_DEBUG_PREVIEW ? otpCode : null,
+      otpPreview: OTP_PREVIEW_ALLOWED ? otpCode : null,
       warning: error.message,
     };
   }
