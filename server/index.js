@@ -42,6 +42,9 @@ const SMTP_PASS = process.env.SMTP_PASS || '';
 const SMTP_FROM_EMAIL = (process.env.SMTP_FROM_EMAIL || '').trim();
 const SMTP_FROM_NAME = (process.env.SMTP_FROM_NAME || 'BookMyTicket').trim();
 const EMAIL_DELIVERY_REQUIRED = String(process.env.EMAIL_DELIVERY_REQUIRED || '').toLowerCase() === 'true';
+const APPS_SCRIPT_EMAIL_URL = (process.env.APPS_SCRIPT_EMAIL_URL || '').trim();
+const APPS_SCRIPT_WEBHOOK_SECRET = process.env.APPS_SCRIPT_WEBHOOK_SECRET || '';
+const APPS_SCRIPT_TIMEOUT_MS = Number(process.env.APPS_SCRIPT_TIMEOUT_MS || 10000);
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'bookmyticket.db');
 
 const app = express();
@@ -106,6 +109,7 @@ const mailTransport = SMTP_ENABLED
       socketTimeout: 10000,
     })
   : null;
+const EMAIL_RECEIPTS_ENABLED = SMTP_ENABLED || Boolean(APPS_SCRIPT_EMAIL_URL);
 
 function sanitizeUser(user) {
   if (!user) {
@@ -176,9 +180,6 @@ async function sendBookingReceiptEmail({ toEmail, toName, booking }) {
   if (!toEmail) {
     return { sent: false, reason: 'missing_email' };
   }
-  if (!mailTransport || !SMTP_ENABLED) {
-    return { sent: false, reason: 'not_configured' };
-  }
 
   const subject = `BookMyTicket Receipt #${booking.bookingId}`;
   const showTime = new Date(booking.show.startTime).toLocaleString();
@@ -224,22 +225,83 @@ async function sendBookingReceiptEmail({ toEmail, toName, booking }) {
     </div>
   `;
 
-  try {
-    await mailTransport.sendMail({
-      from: `"${SMTP_FROM_NAME}" <${SMTP_FROM_EMAIL}>`,
-      to: toEmail,
-      subject,
-      text,
-      html,
-    });
+  if (mailTransport && SMTP_ENABLED) {
+    try {
+      await mailTransport.sendMail({
+        from: `"${SMTP_FROM_NAME}" <${SMTP_FROM_EMAIL}>`,
+        to: toEmail,
+        subject,
+        text,
+        html,
+      });
 
-    return { sent: true };
-  } catch (error) {
-    if (EMAIL_DELIVERY_REQUIRED) {
-      throw error;
+      return { sent: true, provider: 'smtp' };
+    } catch (error) {
+      if (EMAIL_DELIVERY_REQUIRED) {
+        throw error;
+      }
+      return { sent: false, reason: error.message || 'send_failed' };
     }
-    return { sent: false, reason: error.message || 'send_failed' };
   }
+
+  if (APPS_SCRIPT_EMAIL_URL) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), APPS_SCRIPT_TIMEOUT_MS);
+
+    try {
+      const response = await fetch(APPS_SCRIPT_EMAIL_URL, {
+        method: 'POST',
+        redirect: 'manual',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(APPS_SCRIPT_WEBHOOK_SECRET ? { 'X-BookMyTicket-Secret': APPS_SCRIPT_WEBHOOK_SECRET } : {}),
+        },
+        body: JSON.stringify({
+          type: 'booking_receipt',
+          secret: APPS_SCRIPT_WEBHOOK_SECRET || undefined,
+          toEmail,
+          toName: toName || '',
+          subject,
+          text,
+          html,
+          booking,
+        }),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeout);
+
+      if (response.status >= 300 && response.status < 400) {
+        return { sent: false, reason: 'apps_script_redirect_login' };
+      }
+
+      const raw = await response.text();
+      let payload = null;
+      try {
+        payload = JSON.parse(raw);
+      } catch (_error) {
+        payload = null;
+      }
+
+      if (response.ok && payload && (payload.ok === true || payload.sent === true)) {
+        return { sent: true, provider: 'apps_script' };
+      }
+
+      const errorMessage = payload?.error || payload?.message || `apps_script_http_${response.status}`;
+      if (EMAIL_DELIVERY_REQUIRED) {
+        throw new Error(errorMessage);
+      }
+      return { sent: false, reason: errorMessage };
+    } catch (error) {
+      clearTimeout(timeout);
+      if (EMAIL_DELIVERY_REQUIRED) {
+        throw error;
+      }
+      return { sent: false, reason: error?.name === 'AbortError' ? 'apps_script_timeout' : error.message || 'send_failed' };
+    }
+  }
+
+  return { sent: false, reason: 'not_configured' };
 }
 
 function hashPassword(password) {
@@ -514,14 +576,21 @@ function requireAuth(req, res, next) {
   next();
 }
 
+const mockRes = {
+  writeHead: () => {},
+  setHeader: () => {},
+  end: () => {},
+  getHeader: () => {},
+};
+
 io.use((socket, next) => {
-  sessionMiddleware(socket.request, {}, next);
+  sessionMiddleware(socket.request, mockRes, next);
 });
 io.use((socket, next) => {
-  passport.initialize()(socket.request, {}, next);
+  passport.initialize()(socket.request, mockRes, next);
 });
 io.use((socket, next) => {
-  passport.session()(socket.request, {}, next);
+  passport.session()(socket.request, mockRes, next);
 });
 
 async function initializeSchema() {
@@ -1352,7 +1421,7 @@ function getLanIpv4Addresses() {
       continue;
     }
     for (const entry of entries) {
-      if (!entry || entry.family !== 'IPv4' || entry.internal) {
+      if (!entry || (entry.family !== 'IPv4' && entry.family !== 4) || entry.internal) {
         continue;
       }
       addresses.push(entry.address);
@@ -2006,6 +2075,12 @@ setInterval(async () => {
   }
 }, 1000 * 60 * 30);
 
+// Express 5 + path-to-regexp v6 does not accept "/api/*" style wildcards.
+// Use a regex matcher for the API 404 fallback.
+app.all(/^\/api(\/|$)/, (_req, res) => {
+  res.status(404).json({ error: 'API endpoint not found.' });
+});
+
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get(/.*/, (_req, res) => {
@@ -2020,7 +2095,11 @@ async function bootstrap() {
     // eslint-disable-next-line no-console
     console.log(`BookMyTicket listening on http://localhost:${PORT}`);
     // eslint-disable-next-line no-console
-    console.log(`Email receipts: ${SMTP_ENABLED ? 'enabled' : 'disabled (configure SMTP_* in .env)'}`);
+    console.log(
+      `Email receipts: ${
+        EMAIL_RECEIPTS_ENABLED ? 'enabled' : 'disabled (configure SMTP_* or APPS_SCRIPT_EMAIL_URL in .env)'
+      }`
+    );
     if (bonjourHost) {
       // eslint-disable-next-line no-console
       console.log(`Wi-Fi hostname (Bonjour): http://${bonjourHost}:${PORT}`);

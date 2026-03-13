@@ -2,3 +2,22 @@ node_modules/
 .env
 .env.keys
 .DS_Store
+
+# Django backend (deprecated in this repo)
+django_backend/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+.python-version
+
+# Local databases
+*.db
+*.sqlite3
+
+# Logs
+*.log
