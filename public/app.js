@@ -42,6 +42,7 @@ const state = {
     messageType: 'neutral',
     busy: false,
     ticker: null,
+    pendingAction: null,
   },
   session: {
     authenticated: false,
@@ -481,6 +482,7 @@ function resetAuthFlow(mode = 'login') {
   state.authFlow.message = '';
   state.authFlow.messageType = 'neutral';
   state.authFlow.busy = false;
+  state.authFlow.pendingAction = null;
 }
 
 function openAuthModal(mode = 'login') {
@@ -495,19 +497,20 @@ function closeAuthModal() {
   renderAuthModal();
 }
 
-function openAuthForBooking(actionLabel = 'book tickets') {
+function openAuthForBooking(actionLabel = 'book tickets', pendingAction = null) {
   openAuthModal('login');
+  state.authFlow.pendingAction = pendingAction;
   state.authFlow.message = `Please sign in to ${actionLabel}.`;
   state.authFlow.messageType = 'error';
   renderAuthModal();
 }
 
-function ensureBookingAuth(actionLabel = 'book tickets') {
+function ensureBookingAuth(actionLabel = 'book tickets', pendingAction = null) {
   if (state.session?.authenticated && state.session?.user) {
     return true;
   }
 
-  openAuthForBooking(actionLabel);
+  openAuthForBooking(actionLabel, pendingAction);
   return false;
 }
 
@@ -645,6 +648,76 @@ function getOtpSecondsLeft() {
   return Math.max(0, Math.ceil((Number(state.authFlow.otpExpiresAt) - Date.now()) / 1000));
 }
 
+function getSeatTierClass(rowIndex, totalRows) {
+  if (!Number.isFinite(totalRows) || totalRows <= 0) {
+    return 'tier-silver';
+  }
+  const split = Math.ceil(totalRows / 2);
+  return rowIndex < split ? 'tier-silver' : 'tier-gold';
+}
+
+function collectAllMovies() {
+  const buckets = [];
+  if (state.homeData?.featured) {
+    buckets.push(state.homeData.featured);
+  }
+  if (Array.isArray(state.homeData?.nowShowing)) {
+    buckets.push(...state.homeData.nowShowing);
+  }
+  if (Array.isArray(state.homeData?.recentUpcoming)) {
+    buckets.push(...state.homeData.recentUpcoming);
+  }
+  const upcomingByLanguage = getUpcomingByLanguage(state.homeData);
+  Object.values(upcomingByLanguage).forEach((list) => {
+    if (Array.isArray(list)) {
+      buckets.push(...list);
+    }
+  });
+  return buckets;
+}
+
+function findMovieById(movieId) {
+  const id = Number(movieId);
+  return collectAllMovies().find((movie) => Number(movie.id) === id) || null;
+}
+
+function refreshSocketConnection() {
+  if (state.socket) {
+    state.socket.removeAllListeners();
+    state.socket.disconnect();
+    state.socket = null;
+  }
+  connectSocket();
+  if (state.selectedShow?.id) {
+    joinShowRoom(state.selectedShow.id);
+  }
+}
+
+async function resumePendingAuthAction() {
+  const pending = state.authFlow.pendingAction;
+  state.authFlow.pendingAction = null;
+  if (!pending) {
+    return;
+  }
+
+  if (pending.type === 'openBookingFlow') {
+    const movie = findMovieById(pending.movieId);
+    if (movie) {
+      await openBookingFlow(movie);
+    }
+    return;
+  }
+
+  if (pending.type === 'selectShow') {
+    await selectShowForBooking(pending.showId);
+    return;
+  }
+
+  if (pending.type === 'refreshSeats' && state.selectedShow) {
+    await loadSeatMap(state.selectedShow.id);
+  }
+}
+
 async function submitAuthCredentials() {
   if (state.authFlow.busy) {
     return;
@@ -721,6 +794,8 @@ async function verifyAuthOtp() {
     closeAuthModal();
     await loadSession();
     await loadNotifications();
+    refreshSocketConnection();
+    await resumePendingAuthAction();
   } catch (error) {
     state.authFlow.message = error.message;
     state.authFlow.messageType = 'error';
@@ -1110,6 +1185,9 @@ function renderBookingFlowShowsStep() {
       try {
         await selectShowForBooking(showId);
       } catch (error) {
+        if (String(error.message || '').toLowerCase().includes('login required')) {
+          openAuthForBooking('select seats', { type: 'refreshSeats' });
+        }
         showError(error.message);
       }
     });
@@ -1130,10 +1208,11 @@ function renderBookingFlowSeatsStep() {
   const gridItems = [];
   for (let row = 0; row < rows; row += 1) {
     const rowLabel = String.fromCharCode(65 + row);
+    const tierClass = getSeatTierClass(row, rows);
     for (let col = 1; col <= cols; col += 1) {
       const label = `${rowLabel}${col}`;
       const seat = seatMap.get(label);
-      let cssClass = 'seat';
+      let cssClass = `seat ${tierClass}`;
 
       if (!seat || seat.state === 'available') {
         cssClass += '';
@@ -1163,6 +1242,8 @@ function renderBookingFlowSeatsStep() {
     <div class="flow-seat-grid" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr));">${gridItems.join('')}</div>
     <div class="seat-legend">
       <span class="legend-item"><span class="legend-dot available"></span>Available</span>
+      <span class="legend-item"><span class="legend-dot silver"></span>Silver</span>
+      <span class="legend-item"><span class="legend-dot gold"></span>Gold</span>
       <span class="legend-item"><span class="legend-dot mine"></span>Selected by you</span>
       <span class="legend-item"><span class="legend-dot locked"></span>Locked</span>
       <span class="legend-item"><span class="legend-dot booked"></span>Booked</span>
@@ -1200,6 +1281,9 @@ function renderBookingFlowSeatsStep() {
           lockerToken: state.lockerToken,
         });
       } catch (error) {
+        if (String(error.message || '').toLowerCase().includes('login required')) {
+          openAuthForBooking('select seats', { type: 'refreshSeats' });
+        }
         showError(error.message);
       }
     });
@@ -1535,7 +1619,7 @@ function renderBookingFlow() {
 }
 
 async function selectShowForBooking(showId) {
-  if (!ensureBookingAuth('choose a showtime')) {
+  if (!ensureBookingAuth('choose a showtime', { type: 'selectShow', showId })) {
     return;
   }
 
@@ -1561,7 +1645,7 @@ async function openBookingFlow(movie) {
     return;
   }
 
-  if (!ensureBookingAuth('book tickets')) {
+  if (!ensureBookingAuth('book tickets', { type: 'openBookingFlow', movieId: movie.id })) {
     return;
   }
 
@@ -1952,10 +2036,11 @@ function renderSeatPanel() {
   const gridItems = [];
   for (let row = 0; row < rows; row += 1) {
     const rowLabel = String.fromCharCode(65 + row);
+    const tierClass = getSeatTierClass(row, rows);
     for (let col = 1; col <= cols; col += 1) {
       const label = `${rowLabel}${col}`;
       const seat = seatMap.get(label);
-      let cssClass = 'seat';
+      let cssClass = `seat ${tierClass}`;
 
       if (!seat || seat.state === 'available') {
         cssClass += '';
@@ -1985,6 +2070,8 @@ function renderSeatPanel() {
       <div class="seat-grid" style="grid-template-columns: repeat(${cols}, minmax(0, 1fr));">${gridItems.join('')}</div>
       <div class="seat-legend">
         <span class="legend-item"><span class="legend-dot available"></span>Available</span>
+        <span class="legend-item"><span class="legend-dot silver"></span>Silver</span>
+        <span class="legend-item"><span class="legend-dot gold"></span>Gold</span>
         <span class="legend-item"><span class="legend-dot mine"></span>Selected by you</span>
         <span class="legend-item"><span class="legend-dot locked"></span>Locked</span>
         <span class="legend-item"><span class="legend-dot booked"></span>Booked</span>

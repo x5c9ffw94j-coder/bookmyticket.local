@@ -1233,6 +1233,18 @@ body::after {
   cursor: pointer;
 }
 
+.seat.tier-silver:not(.booked):not(.locked):not(.mine) {
+  background: rgba(216, 216, 216, 0.14);
+  border-color: rgba(210, 210, 210, 0.5);
+  color: #edf0f6;
+}
+
+.seat.tier-gold:not(.booked):not(.locked):not(.mine) {
+  background: rgba(226, 177, 72, 0.18);
+  border-color: rgba(226, 177, 72, 0.55);
+  color: #ffe7b3;
+}
+
 .seat.mine {
   background: rgba(58, 193, 106, 0.28);
   border-color: rgba(58, 193, 106, 0.75);
@@ -1276,6 +1288,16 @@ body::after {
 .legend-dot.available {
   background: #000000;
   border: 1px solid #4a4a4a;
+}
+
+.legend-dot.silver {
+  background: rgba(216, 216, 216, 0.9);
+  border: 1px solid rgba(210, 210, 210, 0.9);
+}
+
+.legend-dot.gold {
+  background: rgba(226, 177, 72, 0.95);
+  border: 1px solid rgba(226, 177, 72, 0.95);
 }
 
 .legend-dot.mine {
